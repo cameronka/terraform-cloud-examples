@@ -1,16 +1,16 @@
 #VM is UP Check
 
-data "azurerm_virtual_machine" "webserver" {
+data "azurerm_linux_virtual_machine" "webserver" {
   name                = azurerm_linux_virtual_machine.webserver.*.name
   resource_group_name = azurerm_resource_group.main.name 
 }
 
 check "check_vm_state" {
   assert {
-    condition = data.azurerm_virtual_machine.webserver.power_state == "running"
+    condition = data.azurerm_linux_virtual_machine.webserver.*.power_state == "running"
     error_message = format("Virtual Machine (%s) should be in a 'running' status, instead state is '%s'",
-      data.azurerm_virtual_machine.webserver.id,
-      data.azurerm_virtual_machine.webserver.power_state
+      data.azurerm_linux_virtual_machine.webserver.*.id,
+      data.azurerm_linux_virtual_machine.webserver.*.power_state
     )
   }
 }
@@ -18,7 +18,7 @@ check "check_vm_state" {
 #HTTP Server is up
 check "health_check" {
   data "http" "webserver" {
-    url = "http://${data.azurerm_linux_virtual_machine.webserver.public_ip_address}"
+    url = "http://${data.azurerm_linux_virtual_machine.webserver.*.public_ip_address}"
   }
 
   assert {
