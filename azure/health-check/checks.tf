@@ -23,7 +23,7 @@ check "health_check" {
 
   assert {
     condition = data.http.webserver.status_code == 200
-    error_message = "${azurerm_linux_virtual_machine.webserver.url} returned an unhealthy status code"
+    error_message = "${data.http.webserver.url} returned an unhealthy status code"
   }
 }
 
