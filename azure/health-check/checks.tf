@@ -1,7 +1,7 @@
 #VM is UP Check
 
 data "azurerm_virtual_machine" "webserver" {
-  name                = azurerm_linux_virtual_machine.webserver.name
+  name                = azurerm_linux_virtual_machine.webserver.*.name
   resource_group_name = azurerm_resource_group.main.name 
 }
 
@@ -18,7 +18,7 @@ check "check_vm_state" {
 #HTTP Server is up
 check "health_check" {
   data "http" "webserver" {
-    url = "http://${azurerm_linux_virtual_machine.webserver.public_ip_address}"
+    url = "http://${azurerm_linux_virtual_machine.webserver.*.public_ip_address}"
   }
 
   assert {
