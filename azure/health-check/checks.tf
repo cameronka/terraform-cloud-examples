@@ -1,9 +1,9 @@
 #VM is UP Check
 
-data "azurerm_virtual_machine" "webserver" {
-  name                = azurerm_virtual_machine.webserver.*.name
-  resource_group_name = azurerm_resource_group.main.name 
-}
+#data "azurerm_virtual_machine" "webserver" {
+#  name                = azurerm_virtual_machine.webserver.*.name
+#  resource_group_name = azurerm_resource_group.main.name 
+#}
 
 #check "check_vm_state" {
 #  assert {
@@ -18,12 +18,12 @@ data "azurerm_virtual_machine" "webserver" {
 #HTTP Server is up
 check "health_check" {
   data "http" "webserver" {
-    url = "http://${data.azurerm_virtual_machine.webserver.*.public_ip_address}"
+    url = "http://${azurerm_linux_virtual_machine.webserver.*.public_ip_address}"
   }
 
   assert {
     condition = data.http.webserver.status_code == 200
-    error_message = "${data.azurerm_virtual_machine.webserver.*.url} returned an unhealthy status code"
+    error_message = "${azurerm_linux_virtual_machine.webserver.*.url} returned an unhealthy status code"
   }
 }
 
