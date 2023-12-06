@@ -18,7 +18,7 @@
 #HTTP Server is up
 check "health_check" {
   data "http" "webserver" {
-    url = "http://${azurerm_linux_virtual_machine.webserver.[count.index].public_ip_address}"
+    url = "http://${azurerm_linux_virtual_machine.webserver.public_ip_address}"
   }
 
   assert {
