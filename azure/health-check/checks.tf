@@ -18,12 +18,12 @@ check "check_vm_state" {
 #HTTP Server is up
 check "health_check" {
   data "http" "webserver" {
-    url = "http://${azurerm_linux_virtual_machine.webserver.*.public_ip_address}"
+    url = "http://${data.azurerm_linux_virtual_machine.webserver.public_ip_address}"
   }
 
   assert {
-    condition = data.http.terraform_io.status_code == 200
-    error_message = "${data.http.terraform_io.url} returned an unhealthy status code"
+    condition = data.http.webserver.status_code == 200
+    error_message = "${data.azurerm_linux_virtual_machine.webserver.url} returned an unhealthy status code"
   }
 }
 
