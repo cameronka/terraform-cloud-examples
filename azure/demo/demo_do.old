@@ -1,0 +1,41 @@
+
+data "digitalocean_ssh_key" "jump" {
+  name = "Jump"
+}
+
+# Create a new tag
+resource "digitalocean_tag" "demo" {
+  name = "demo"
+}
+
+resource "digitalocean_droplet" "dsiprouterDroplet" {
+        name = var.dropletname
+        region = var.region
+        size="1gb"
+        image=var.image
+	      ssh_keys = [ data.digitalocean_ssh_key.jump.fingerprint ]
+	      user_data = templatefile("dsiprouter_demo.tpl",{userdata_giturl = "https://github.com/dOpensource/dsiprouter.git", userdata_branch = var.branch,userdata_hostname = var.hostname })
+	      tags = [ digitalocean_tag.demo.id ]
+        ipv6 = false
+        private_networking = true
+}
+
+#resource "digitalocean_floating_ip_assignment" "demo_ip" {
+#  ip_address = "159.203.55.188"
+#  droplet_id = "${digitalocean_droplet.dsiprouterDroplet.id}"
+#}
+
+
+# Add an A record to the dsiprouter.org domain.
+resource "digitalocean_record" "demo" {
+  domain = "dsiprouter.org"
+  type   = "A"
+  ttl = "60"
+  name   = var.dropletname
+  value  = digitalocean_droplet.dsiprouterDroplet.ipv4_address
+
+}
+
+output "ip" {
+  value = digitalocean_droplet.dsiprouterDroplet.ipv4_address
+}

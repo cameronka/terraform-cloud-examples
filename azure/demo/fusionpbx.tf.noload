@@ -1,0 +1,93 @@
+resource "azurerm_public_ip" "fusionpbx_pip" {
+  name                = "${var.prefix}-fusionpbx-pip${count.index}"
+  count= var.num_of_fusionpbx_instances
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  allocation_method   = "Dynamic"
+}
+
+resource "azurerm_network_interface" "fusionpbx_main" {
+  name                = "${var.prefix}-fusionpbx-main${count.index}"
+  count =  var.num_of_fusionpbx_instances
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+
+  ip_configuration {
+    name                          = "primary"
+    subnet_id                     = azurerm_subnet.internal.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.fusionpbx_pip[count.index].id
+  }
+}
+
+resource "azurerm_network_interface" "fusionpbx_internal" {
+  name                      = "${var.prefix}-fusionpbx-internal${count.index}"
+  count =  var.num_of_fusionpbx_instances
+  resource_group_name       = azurerm_resource_group.main.name
+  location                  = azurerm_resource_group.main.location
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.internal.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+
+
+resource "azurerm_linux_virtual_machine" "fusionpbx" {
+  name                            = "${var.prefix}-fusionpbx${count.index}"
+  count = var.num_of_fusionpbx_instances
+  resource_group_name             = azurerm_resource_group.main.name
+  location                        = azurerm_resource_group.main.location
+  size                            = "Standard_F1"
+  admin_username                  = "jump"
+  disable_password_authentication = true
+  network_interface_ids = [
+    element(azurerm_network_interface.fusionpbx_main.*.id, count.index),
+    element(azurerm_network_interface.fusionpbx_internal.*.id,count.index),
+  ]
+
+  admin_ssh_key {
+    username   = "jump"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
+
+  source_image_reference {
+    publisher = "Debian"
+    offer     = "debian-10"
+    sku       = "10"
+    version   = "latest"
+  }
+
+ provisioner "remote-exec" {
+
+   inline = [
+
+      "sudo bash -c 'wget -O - https://raw.githubusercontent.com/fusionpbx/fusionpbx-install.sh/master/debian/pre-install.sh | sh;'",
+      "sudo bash -c 'cd /usr/src/fusionpbx-install.sh/debian && ./install.sh'"
+
+   ]
+}
+
+connection {
+  type = "ssh"
+  #user = element(azurerm_linux_virtual_machine.fusionpbx.*.admin_username,count.index)
+  user = self.admin_username
+  private_key = file("~/.ssh/id_rsa")
+  #host = element(azurerm_linux_virtual_machine.fusionpbx.*.public_ip_address,count.index)
+  host = self.public_ip_address
+}
+
+
+
+  os_disk {
+    storage_account_type = "Standard_LRS"
+    caching              = "ReadWrite"
+  }
+}
+
+output "fusionpbx_ip_addr" {
+  value = azurerm_linux_virtual_machine.fusionpbx.*.public_ip_address
+  description = "FusionPBX IP addresses"
+}
