@@ -5,7 +5,7 @@ resource "tls_private_key" "webserver_ssh" {
 
 resource "azurerm_linux_virtual_machine" "webserver" {
   name                            = "${var.prefix}-webserver${count.index}"
-  count                           = 1
+  count                           = var.number_of_servers
   resource_group_name             = azurerm_resource_group.main.name
   location                        = azurerm_resource_group.main.location
   size                            = "Standard_F1"

@@ -1,6 +1,6 @@
-variable "dropletname" {}
-
-variable "number_of_servers" {}
+variable "number_of_servers" {
+	default="1"
+}
 
 variable "branch" {
 	default="master"
