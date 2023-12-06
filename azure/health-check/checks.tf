@@ -18,12 +18,12 @@
 #HTTP Server is up
 check "health_check" {
   data "http" "webserver" {
-    url = "http://${azurerm_linux_virtual_machine.webserver[count.index].public_ip_address}"
+    url = "http://${azurerm_linux_virtual_machine.webserver.public_ip_address}"
   }
 
   assert {
     condition = data.http.webserver.status_code == 200
-    error_message = "${azurerm_linux_virtual_machine.webserver.*.url} returned an unhealthy status code"
+    error_message = "${azurerm_linux_virtual_machine.webserver.url} returned an unhealthy status code"
   }
 }
 
