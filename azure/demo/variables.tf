@@ -44,18 +44,18 @@ variable "pub_key" {
 
 
 variable "subscription_id" {
-	default=""
+	default="0c506d70-8b26-4107-82c1-a703f9088588"
 }
 
 variable "client_id" {
-	default=""
+	default="22fd87d3-d512-41cb-acc2-92acc1ec691a"
 }
 
 variable "client_secret" {
-	default=""
+	default="DFV8Q~Rau7tvjY9RcG1Eqd8OFLIH3hh5QQ63uaKw"
 }
 
 variable "tenant_id" {
-	default=""
+	default="710c616d-6dcf-4384-99bb-6f652a890333"
 
 }
