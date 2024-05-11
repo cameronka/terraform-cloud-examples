@@ -48,11 +48,11 @@ variable "subscription_id" {
 }
 
 variable "client_id" {
-	default="22fd87d3-d512-41cb-acc2-92acc1ec691a"
+	default=""
 }
 
 variable "client_secret" {
-	default="DFV8Q~Rau7tvjY9RcG1Eqd8OFLIH3hh5QQ63uaKw"
+	default=""
 }
 
 variable "tenant_id" {
